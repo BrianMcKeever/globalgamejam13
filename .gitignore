@@ -1,4 +1,10 @@
 *.log
 *.pot
 *.pyc
+*.py~
+*.swp
+*~
+environment
 local_settings.py
+database.db
+secret_production_settings.py
