@@ -8,3 +8,4 @@ environment
 local_settings.py
 database.db
 secret_production_settings.py
+static

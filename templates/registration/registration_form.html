@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block stylesheet %}
+    {{ block.super }}
+    <style type="text/css">
+        #consent {
+            margin-left:110px;
+        }
+        #consent label {
+            float:none;
+            width:auto;
+            padding-left:20px;
+        }
+    </style>
+{% endblock %}
+{% block content %}
+    <div class="page-header">
+        <h1>Register</h1>
+    </div>
+
+    <form action="" method="post" class="form-horizontal">
+        <fieldset> 
+            {% csrf_token %}
+            {% for error in form.non_field_errors %}
+            <div class="alert-message error">
+                <p><strong>{{ error|escape }}</strong></p>
+            </div>
+            {% endfor %}
+                {% for field in form %}
+                <div class="control-group {% if field.errors %} error {% endif %}">
+                    <div class="control-label">
+                        {% if field.label_tag == '<label for="id_tos">I have read and agree to the Terms of Service</label>' %}
+                            <label for="id_tos">I have read and agree to the <a
+                                    href="{% url terms_of_service %}">Terms of
+                                    Service</a></label> 
+                        {% else %}
+                        {{ field.label_tag }}
+                        {% endif %}
+                    </div>
+                    <div class="controls">
+                        {% for error in field.errors %}
+                        <span class="help-inline">{{ error }}</span>
+                        {% endfor %}
+                        <div class="input">
+                            {{ field }}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            <div class="form-actions">
+                <input type="submit" value="Register" class="btn btn-primary">&nbsp;
+            </div>
+        </fieldset>
+    </form>
+{% endblock %}

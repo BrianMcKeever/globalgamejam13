@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>Game990 - {% block title %}{% endblock %}</title>
+        <meta name="description" content="">
+        <meta name="author" content="Global Game Jam 2013">
+        <meta name="keywords" content="" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script type="text/javascript">
+            var _gaq = _gaq || [];
+            _gaq.push(['_setAccount', 'UA-37918901-1']);
+            _gaq.push(['_trackPageview']);
+
+            (function() {
+            var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+            })();
+
+        </script>
+        {% block extra_meta %}
+        {% endblock %}
+
+        {% block stylesheet %}
+        <link href="/static/bootstrap.min.css" rel="stylesheet">
+        <style type="text/css">
+            .walloftext p{
+                text-indent:40px
+            }
+            .walloftext a{
+              text-decoration: underline;
+            }
+            body {
+                padding-top: 55px;
+            }
+            footer {
+                margin-top: 15px;
+            }
+            #logo {
+                padding:0px;
+            }
+            #login_button {
+                margin-top:0px;
+            }
+            #company_name {
+                text-align:right;
+            }
+        </style>
+        
+        {% endblock %}
+        {% block javascript %}
+        {% endblock %}
+        {% block rss %}
+        {% endblock %}
+
+        <link rel="shortcut icon" href="/static/favicon.ico" type="image/png" />
+  </head>
+
+  <body class="tundra">
+      {% block navbar %}
+      <div class="navbar navbar-fixed-top">
+          <div class="navbar-inner">
+              <div class="container">
+                  <ul class="nav">
+                      <li>
+                      <h2>
+                      <a id="logo" href="{% url portal %}">
+                          Game990
+                          <!--
+                          <img alt="logo"
+                          src="/static/logo.png'%}" />
+                          -->
+                      </a>
+                      </h2>
+                      </li>
+                      {% if user.is_authenticated %}
+                      <li {% ifequal request.path "/game/lobby/" %} class="active" {% endifequal %}>
+                      <a href="{% url lobby %}">Lobby</a></li>
+                      <li {% ifequal request.path "/game/editor/" %} class="active" {% endifequal %}>
+                      <a href="{% url editor %}">Deck Editor</a></li>
+
+                      {% endif %}
+                  </ul>
+                  {% if user.is_authenticated %}
+                  <div class="pull-right">
+                      <a href="{% url logout_then_login %}" class="btn"
+                          >Logout - {{user.username}}</a>
+                  </div>
+                  {% else %}
+                  <form id="menu_login" class="form-inline navbar-search pull-right" action="{% url auth_login %}" method="post">
+                      {% csrf_token %}
+                      <input class="input-small" type="text" maxlength="30" name="username" placeholder="Username">
+                      <input class="input-small" type="password" name="password" placeholder="Password">
+                      <input class="btn" id="login_button" type="submit" value="Login"/>
+                  </form>
+                  {% endif %}
+              </div>
+          </div>
+      </div>
+      {% endblock %}
+
+      <div class="container">
+          {% for message in messages %}
+          <div class="alert
+              {% if message.tags %}
+              alert-{{message.tags}}
+              {% endif %}
+              ">
+              <p><strong>{{ message }}</strong></p>
+          </div>
+          {% endfor %}
+          <div id="content">
+              {% block content %} {% endblock %}
+          </div><!-- /content -->
+
+
+        {% block footer %}
+          <footer class="row">
+          <!--
+          <div class="span9">
+              <a href="{!% url about %}">About</a> ·
+              <a href="{!% url contact %}">Contact</a> ·
+              <a href="{!% url faq %}">FAQ</a> · 
+              <a href="{!% url privacy %}"> Privacy Policy </a> · 
+              <a href="{!% url terms_of_service %}">Terms of Service</a>  
+          </div>
+          -->
+          <div class="span3" id="company_name">
+              Global Game Jam 2013
+          </div>
+          </footer>
+          {% endblock %}
+
+      </div> <!-- /container -->
+
+  </body>
+</html>
+
