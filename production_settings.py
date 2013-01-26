@@ -1,5 +1,5 @@
 LOCAL_SETTINGS = "production"
-import secret_production_settings
+from secret_production_settings import *
 #the secret production settings include the DATABASES and SECRET_KEY settings
 
 DEBUG = False
