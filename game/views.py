@@ -1,1 +1,118 @@
-# Create your views here.
+from django.shortcuts import render_to_response
+from django.http import HttpResponseRedirect
+from django.core.urlresolvers import reverse
+from django.template import RequestContext
+from django.contrib import messages
+from django.core.mail import send_mail
+from django.http import Http404, HttpResponse, HttpResponseForbidden
+from django.template.loader import get_template
+from django.template import Context
+from django.shortcuts import get_object_or_404
+from forms import *
+from models import *
+from score_functions import *
+import settings
+
+def game_join(request):
+    if request.method == 'POST': 
+        form = JoinGameForm(request.POST) 
+        if form.is_valid(): 
+            game = get_object_or_404(Game, id = form.cleaned_data['game_id'])
+            if game.password == form.cleaned_data['password']:
+                player = Player()
+                player.name = form.cleaned_data['player_name']
+                player.game = game
+                player.save()
+                return HttpResponse()
+            else:
+                return HttpResponseForbidden()
+    else:
+        form = JoinGameForm() 
+
+    return render_to_response('form.html', 
+            {"form" : form}, context_instance=RequestContext(request)
+    )
+
+def game_list(request):
+    games = Game.objects.filter(round = 0)
+    return render_to_response('game_list.html', {
+        "games": games
+        }, context_instance=RequestContext(request),
+        mimetype = 'text/plain'
+    )
+
+def game_new(request):
+    if request.method == 'POST': 
+        form = NewGameForm(request.POST) 
+        if form.is_valid(): 
+            player = Player()
+            player.name = form.cleaned_data['player_name']
+            player.save()
+            game = Game()
+            game.host = player
+            game.password = form.cleaned_data['password']
+            game.save()
+
+            player.game = game
+            player.save()
+            return HttpResponse()
+    else:
+        form = NewGameForm() 
+
+    return render_to_response('form.html', 
+            {"form" : form}, context_instance=RequestContext(request)
+    )
+
+def game_set_bpm(request):
+    if request.method == 'POST': 
+        form = SetBPMForm(request.POST) 
+        if form.is_valid(): 
+            game = get_object_or_404(Game, id = form.cleaned_data['game_id'])
+            player = game.players.get(name = form.cleaned_data['player_name'])
+            setattr(player, "round_%s_bpm"%game.round, form.cleaned_data['bpm'])
+            player.save()
+            players = game.players.all()
+
+            for player in players:
+                if getattr(player, "round_%s_bpm"%game.round) == None:
+                    break
+            else:
+                if game.round == settings.NUMBER_ROUNDS:
+                    for player in players:
+                        final_score(player, game)
+                else:
+                    for player in players:
+                        round_score(player, game)
+                    game.round += 2
+                    game.save()
+            return HttpResponse()
+    else:
+        form = SetBPMForm() 
+
+    return render_to_response('form.html', 
+            {"form" : form}, context_instance=RequestContext(request)
+    )
+    
+def game_set_master_bpm(request):
+    if request.method == 'POST': 
+        form = SetMasterBPMForm(request.POST) 
+        if form.is_valid(): 
+            game = get_object_or_404(Game, id = form.cleaned_data['game_id'])
+            game.master_bpm = form.cleaned_data['bpm']
+            game.save()
+            return HttpResponse()
+    else:
+        form = SetMasterBPMForm() 
+
+    return render_to_response('form.html', 
+            {"form" : form}, context_instance=RequestContext(request)
+    )
+
+def game_score(request, game_id):
+    game = get_object_or_404(Game, id = game_id)
+    players = game.players.all()
+    return render_to_response('game_scores.html', {
+        "players": players
+        }, context_instance=RequestContext(request),
+        mimetype = 'text/plain'
+    )

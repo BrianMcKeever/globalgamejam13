@@ -1,0 +1,28 @@
+<form action="." method="post" class="form-horizontal">
+    <fieldset> 
+        {% csrf_token %}
+        {% for error in form.non_field_errors %}
+        <div class="alert-message error">
+            <p><strong>{{ error|escape }}</strong></p>
+        </div>
+        {% endfor %}
+            {% for field in form %}
+            <div class="control-group {% if field.errors %} error {% endif %}">
+                <div class="control-label">
+                    {{ field.label_tag }}
+                </div>
+                <div class="controls">
+                    {% for error in field.errors %}
+                    <span class="help-inline">{{ error }}</span>
+                    {% endfor %}
+                    <div class="input">
+                        {{ field }}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        <div class="form-actions">
+            <input type="submit" value="Submit" class="btn btn-primary">&nbsp;
+        </div>
+    </fieldset>
+</form>

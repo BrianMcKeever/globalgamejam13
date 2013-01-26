@@ -128,6 +128,7 @@ LOGGING = {
 }
 
 REGISTRATION_OPEN = True
+NUMBER_ROUNDS = 3
 
 
 try:

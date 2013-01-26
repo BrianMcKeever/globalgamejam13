@@ -9,7 +9,7 @@ import registration
 urlpatterns = patterns('',
     # Examples:
     # url(r'^$', 'globalgamejam13.views.home', name='home'),
-    # url(r'^globalgamejam13/', include('globalgamejam13.foo.urls')),
+    url(r'^game/', include('globalgamejam13.game.urls')),
 
     # Uncomment the admin/doc line below to enable admin documentation:
     # url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
