@@ -11,7 +11,7 @@ from django.shortcuts import get_object_or_404
 from forms import *
 from models import *
 from score_functions import *
-import settings
+import globalgamejam13.settings
 
 def game_join(request):
     if request.method == 'POST': 
