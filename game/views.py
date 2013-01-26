@@ -55,7 +55,7 @@ def game_new(request):
 
             player.game = game
             player.save()
-            return HttpResponse()
+            return HttpResponse(game.id, mimetype = "text/plain")
     else:
         form = NewGameForm() 
 
@@ -78,12 +78,10 @@ def game_set_bpm(request):
                     break
             else:
                 if game.round == settings.NUMBER_ROUNDS:
-                    for player in players:
-                        final_score(player, game)
+                    final_score(players, game)
                 else:
-                    for player in players:
-                        round_score(player, game)
-                    game.round += 2
+                    round_score(players, game)
+                    game.round += 1
                     game.save()
             return HttpResponse()
     else:
@@ -110,7 +108,7 @@ def game_set_master_bpm(request):
 
 def game_score(request, game_id):
     game = get_object_or_404(Game, id = game_id)
-    players = game.players.all()
+    players = game.players.all().order_by("-score")
     return render_to_response('game_scores.html', {
         "players": players
         }, context_instance=RequestContext(request),

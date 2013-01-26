@@ -15,3 +15,5 @@ class Player(models.Model):
     round_3_bpm = models.PositiveIntegerField(null = True)
     score = models.IntegerField(default = 0)
     score_summary = models.TextField()
+    class Meta:
+        unique_together = ("name", "game")
