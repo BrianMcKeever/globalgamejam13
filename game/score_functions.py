@@ -37,20 +37,20 @@ def round_score(players, game):
             if pbpm == game.master_bpm:
                 points += 30
                 player.score_summary += "+30 Bullseye!,"
-            elif difference <= 5):
+            elif difference <= 5:
                 points += 10
                 player.score_summary += "+10 Almost!,"
-            elif difference <= 10):
+            elif difference <= 10:
                 points += 5
                 player.score_summary += "+5 Close!,"
         else:
             if pbpm == game.master_bpm:
                 points += 60
                 player.score_summary += "+60 Bullseye!,"
-            elif difference <= 5):
+            elif difference <= 5:
                 points += 25
                 player.score_summary += "+25 Almost!,"
-            elif difference <= 10):
+            elif difference <= 10:
                 points += 20
                 player.score_summary += "+20 Close!,"
         player.score += points
