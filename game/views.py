@@ -81,6 +81,7 @@ def game_round(request):
                 return HttpResponse("invalid game_id")
 
             if game.round == settings.NUMBER_ROUNDS:
+                players = game.players.all()
                 final_score(players, game)
             else:
                 game.round += 1
@@ -133,7 +134,7 @@ def game_set_master_bpm(request):
                 game = Game.objects.get(id = form.cleaned_data['game_id'])
             except:
                 return HttpResponse("invalid game_id")
-            game.master_bpm = form.cleaned_data['bpm']
+            setattr(game, "round_%s_master_bpm"%game.round, form.cleaned_data['bpm'])
             game.save()
             players = game.players.all()
             before_round_score(players, game)

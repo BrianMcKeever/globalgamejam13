@@ -10,6 +10,8 @@ def final_score(players, game):
     player.score
     player.score_summary 
     """
+    print "final score"
+    """
     player = max(players, lambda player: player.round_3_bpm)
     player.score += 10
     player.score_summary += "+10 for highest BPM"
@@ -19,8 +21,11 @@ def final_score(players, game):
     player.score += 10
     player.score_summary += "+10 for lowest BPM"
     player.save()
+    """
 
 def before_round_score(players, game):
+    print "before round score"
+    """
     for player in players:
         if pbpm == game.master_bpm:
             bonus = 50
@@ -36,16 +41,22 @@ def before_round_score(players, game):
             player.score_summary += "+%s Close!,"%bonus
         player.score += points
         player.save()
+    """
 
 def during_round(player, game):
+    print "during round"
+    """
     pbpm = getattr(player, "round_%s_bpm"%game.round)
     if pbpm == game.master_bpm:
         bonus = 25
         player.score += bonus
         player.score_summary += "+%s Ding!,"%bonus
         player.save()
+    """
 
 def after_round(players, game):
+    print "after round"
+    """
     players = list(players)
     def key(player):
         pbpm = getattr(player, "round_%s_bpm"%game.round)
@@ -62,3 +73,4 @@ def after_round(players, game):
         player.score += bonus
         player.score_summary += "+%s Closest not on %s"%(bonus, game.round)
         player.save()
+    """
