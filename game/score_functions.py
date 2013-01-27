@@ -1,33 +1,24 @@
 import math
 def final_score(players, game):
-    """
-    game.master_bpm
-    game.round
-    player.round_0_bpm
-    player.round_1_bpm
-    player.round_2_bpm
-    player.round_3_bpm
-    player.score
-    player.score_summary 
-    """
-    print "final score"
-    """
-    player = max(players, lambda player: player.round_3_bpm)
-    player.score += 10
-    player.score_summary += "+10 for highest BPM"
+    player = game.max_bpm_player
+    bonus = 50
+    player.score += bonus
+    player.score_summary += "+%s for highest BPM of rounds"%bonus
     player.save()
 
-    player = min(players, lambda player: player.round_3_bpm)
-    player.score += 10
-    player.score_summary += "+10 for lowest BPM"
+    player = game.min_bpm_player
+    bonus = 50
+    player.score += bonus
+    player.score_summary += "+%s for lowest BPM of rounds"%bonus
     player.save()
-    """
 
 def before_round_score(players, game):
-    print "before round score"
-    """
     for player in players:
-        if pbpm == game.master_bpm:
+        pbpm = getattr(player, "round_%s_bpm"%game.round)
+        mbpm = getattr(game, "round_%s_master_bpm"%game.round)
+        difference = math.fabs(pbpm - mbpm)
+        points = 0
+        if pbpm == mbpm:
             bonus = 50
             points += bonus
             player.score_summary += "+%s Bullseye!,"%bonus
@@ -41,36 +32,42 @@ def before_round_score(players, game):
             player.score_summary += "+%s Close!,"%bonus
         player.score += points
         player.save()
-    """
 
 def during_round(player, game):
-    print "during round"
-    """
     pbpm = getattr(player, "round_%s_bpm"%game.round)
-    if pbpm == game.master_bpm:
+    mbpm = getattr(game, "round_%s_master_bpm"%game.round)
+    if pbpm == mbpm:
         bonus = 25
         player.score += bonus
-        player.score_summary += "+%s Ding!,"%bonus
+        player.score_summary += "+%s Direct hit!,"%bonus
         player.save()
-    """
 
 def after_round(players, game):
-    print "after round"
-    """
     players = list(players)
+    mbpm = getattr(game, "round_%s_master_bpm"%game.round)
     def key(player):
         pbpm = getattr(player, "round_%s_bpm"%game.round)
-        return math.abs(pbpm - game.master_bpm)
+        return math.abs(pbpm - mbpm)
     players.sort(key = key)
 
     def key(player):
         pbpm = getattr(player, "round_%s_bpm"%game.round)
-        return pbpm == game.master_bpm
+        return pbpm != mbpm
 
-    #players = filter(players, lambda player: player
-    for player in players:
+    players = filter(key, players)
+    length = len(players)
+    if length >= 1:
         bonus = 20
-        player.score += bonus
-        player.score_summary += "+%s Closest not on %s"%(bonus, game.round)
-        player.save()
-    """
+        players[0].score += bonus
+        players[0].score_summary += "+%s Closest not on"
+        players[0].save()
+    if length >= 2:
+        bonus = 10
+        players[1].score += bonus
+        players[1].score_summary += "+%s Second closest not on"
+        players[1].save()
+    if length >= 3:
+        bonus = 5
+        players[2].score += bonus
+        players[2].score_summary += "+%s Third closest not on"
+        players[2].save()

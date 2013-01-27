@@ -19,10 +19,11 @@ def game_join(request):
             try:
                 game = Game.objects.get(
                     host__name = form.cleaned_data['host_name'],
-                    password = form.cleaned_data['password']
+                    password = form.cleaned_data['password'],
+                    round = 0
                 )
             except:
-                return HttpResponse("invalid game_id")
+                return HttpResponse("game not found")
             if game.password == form.cleaned_data['password']:
                 try:
                     player = Player()
@@ -31,7 +32,7 @@ def game_join(request):
                     player.save()
                 except:
                     return HttpResponse("duplicate player")
-                return HttpResponse()
+                return HttpResponse(game.id)
             else:
                 return HttpResponse("wrong password")
     else:
@@ -108,16 +109,23 @@ def game_set_bpm(request):
                 return HttpResponse("invalid player")
             if game.round == 0:
                 return HttpResponse("round not started")
+            bpm = form.cleaned_data['bpm']
+            if bpm > game.max_bpm:
+                game.max_bpm = bpm
+                game.max_bpm_player = player
+                game.save()
+            if bpm < game.min_bpm:
+                game.min_bpm = bpm
+                game.min_bpm_player = player
+                game.save()
             pbpm = getattr(player, "round_%s_bpm"%game.round)
-            if pbpm == None:
-                #then we're at the start of the round
-                setattr(player, "round_%s_bpm"%game.round, form.cleaned_data['bpm'])
-                player.save()
-            elif getattr(game, "round_%s_master_bpm"%game.round) != None:
+            setattr(player, "round_%s_bpm"%game.round, form.cleaned_data['bpm'])
+            if getattr(game, "round_%s_master_bpm"%game.round) != None:
                 #we're in the middle of a round
+                player.save()
                 during_round(player, game)
             else:
-                return HttpResponse("set_pbm_error")
+                player.save()
             return HttpResponse()
     else:
         form = SetBPMForm() 

@@ -7,9 +7,9 @@ class Game(models.Model):
     round_2_master_bpm = models.PositiveIntegerField(null = True)
     round_3_master_bpm = models.PositiveIntegerField(null = True)
     host = models.ForeignKey("Player", related_name = "hosted")
-    max_bpm = models.PositiveIntegerField(null = True)
+    max_bpm = models.PositiveIntegerField(default = 0)
     max_bpm_player = models.ForeignKey("Player", null = True, related_name = "max_player")
-    min_bpm = models.PositiveIntegerField(null = True)
+    min_bpm = models.PositiveIntegerField(default = 50000)
     min_bpm_player = models.ForeignKey("Player", null = True, related_name = "min_player")
 
 class Player(models.Model):
