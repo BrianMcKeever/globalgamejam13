@@ -47,7 +47,7 @@ def after_round(players, game):
     mbpm = getattr(game, "round_%s_master_bpm"%game.round)
     def key(player):
         pbpm = getattr(player, "round_%s_bpm"%game.round)
-        return math.abs(pbpm - mbpm)
+        return math.fabs(pbpm - mbpm)
     players.sort(key = key)
 
     def key(player):
@@ -59,15 +59,15 @@ def after_round(players, game):
     if length >= 1:
         bonus = 20
         players[0].score += bonus
-        players[0].score_summary += "+%s Closest not on"
+        players[0].score_summary += "+%s Closest not on.,"%bonus
         players[0].save()
     if length >= 2:
         bonus = 10
         players[1].score += bonus
-        players[1].score_summary += "+%s Second closest not on"
+        players[1].score_summary += "+%s Second closest not on.,"%bonus
         players[1].save()
     if length >= 3:
         bonus = 5
         players[2].score += bonus
-        players[2].score_summary += "+%s Third closest not on"
+        players[2].score_summary += "+%s Third closest not on.,"%bonus
         players[2].save()

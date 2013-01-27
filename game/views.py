@@ -83,8 +83,12 @@ def game_round(request):
 
             if game.round == settings.NUMBER_ROUNDS:
                 players = game.players.all()
+                after_round(players, game)
                 final_score(players, game)
             else:
+                if game.round != 0:
+                    players = game.players.all()
+                    after_round(players, game)
                 game.round += 1
                 game.save()
             return HttpResponse()
