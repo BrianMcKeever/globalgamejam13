@@ -108,22 +108,15 @@ def game_set_bpm(request):
             if game.round == 0:
                 return HttpResponse("round not started")
             pbpm = getattr(player, "round_%s_bpm"%game.round)
-            #if pbpm == None:
-                
-            setattr(player, "round_%s_bpm"%game.round, form.cleaned_data['bpm'])
-            player.save()
-            players = game.players.all()
-
-            for player in players:
-                if getattr(player, "round_%s_bpm"%game.round) == None:
-                    break
+            if pbpm == None:
+                #then we're at the start of the round
+                setattr(player, "round_%s_bpm"%game.round, form.cleaned_data['bpm'])
+                player.save()
+            elif getattr(game, "round_%s_master_bpm"%game.round) != None:
+                #we're in the middle of a round
+                during_round(player, game)
             else:
-                if game.round == settings.NUMBER_ROUNDS:
-                    final_score(players, game)
-                else:
-                    round_score(players, game)
-                    game.round += 1
-                    game.save()
+                return HttpResponse("set_pbm_error")
             return HttpResponse()
     else:
         form = SetBPMForm() 
@@ -142,6 +135,8 @@ def game_set_master_bpm(request):
                 return HttpResponse("invalid game_id")
             game.master_bpm = form.cleaned_data['bpm']
             game.save()
+            players = game.players.all()
+            before_round_score(players, game)
             return HttpResponse()
     else:
         form = SetMasterBPMForm() 
