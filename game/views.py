@@ -7,7 +7,6 @@ from django.core.mail import send_mail
 from django.http import Http404, HttpResponse, HttpResponseForbidden
 from django.template.loader import get_template
 from django.template import Context
-from django.shortcuts import get_object_or_404
 from forms import *
 from models import *
 from score_functions import *
@@ -17,15 +16,21 @@ def game_join(request):
     if request.method == 'POST': 
         form = JoinGameForm(request.POST) 
         if form.is_valid(): 
-            game = get_object_or_404(Game, id = form.cleaned_data['game_id'])
+            try:
+                game = Game.objects.get(id = form.cleaned_data['game_id'])
+            except:
+                return HttpResponse("invalid game_id")
             if game.password == form.cleaned_data['password']:
-                player = Player()
-                player.name = form.cleaned_data['player_name']
-                player.game = game
-                player.save()
+                try:
+                    player = Player()
+                    player.name = form.cleaned_data['player_name']
+                    player.game = game
+                    player.save()
+                except:
+                    return HttpResponse("duplicate player")
                 return HttpResponse()
             else:
-                return HttpResponseForbidden()
+                return HttpResponse("wrong password")
     else:
         form = JoinGameForm() 
 
@@ -67,8 +72,14 @@ def game_set_bpm(request):
     if request.method == 'POST': 
         form = SetBPMForm(request.POST) 
         if form.is_valid(): 
-            game = get_object_or_404(Game, id = form.cleaned_data['game_id'])
-            player = game.players.get(name = form.cleaned_data['player_name'])
+            try:
+                game = Game.objects.get(id = form.cleaned_data['game_id'])
+            except:
+                return HttpResponse("invalid game_id")
+            try:
+                player = game.players.get(name = form.cleaned_data['player_name'])
+            except:
+                return HttpResponse("invalid player")
             setattr(player, "round_%s_bpm"%game.round, form.cleaned_data['bpm'])
             player.save()
             players = game.players.all()
@@ -95,7 +106,10 @@ def game_set_master_bpm(request):
     if request.method == 'POST': 
         form = SetMasterBPMForm(request.POST) 
         if form.is_valid(): 
-            game = get_object_or_404(Game, id = form.cleaned_data['game_id'])
+            try:
+                game = Game.objects.get(id = form.cleaned_data['game_id'])
+            except:
+                return HttpResponse("invalid game_id")
             game.master_bpm = form.cleaned_data['bpm']
             game.save()
             return HttpResponse()
@@ -107,7 +121,10 @@ def game_set_master_bpm(request):
     )
 
 def game_score(request, game_id):
-    game = get_object_or_404(Game, id = game_id)
+    try:
+        game = Game.objects.get(id = game_id)
+    except:
+        return HttpResponse("invalid game_id")
     players = game.players.all().order_by("-score")
     return render_to_response('game_scores.html', {
         "players": players
