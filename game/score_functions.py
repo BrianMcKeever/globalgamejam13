@@ -20,43 +20,45 @@ def final_score(players, game):
     player.score_summary += "+10 for lowest BPM"
     player.save()
 
-def round_score(players, game):
-    smallest_difference = 10000000000
-    closest_player = []
+def before_round_score(players, game):
     for player in players:
-        points = 0
-        pbpm = getattr(player, "round_%s_bpm"%game.round)
-        difference = math.abs(pbpm - game.master_bpm)
-        if smallest_difference > difference:
-            smallest_difference = difference
-            closest_players = [player]
-        elif smallest_difference == difference:
-            closest_players.append(player)
-
-        if game.round == 0:
-            if pbpm == game.master_bpm:
-                points += 30
-                player.score_summary += "+30 Bullseye!,"
-            elif difference <= 5:
-                points += 10
-                player.score_summary += "+10 Almost!,"
-            elif difference <= 10:
-                points += 5
-                player.score_summary += "+5 Close!,"
-        else:
-            if pbpm == game.master_bpm:
-                points += 60
-                player.score_summary += "+60 Bullseye!,"
-            elif difference <= 5:
-                points += 25
-                player.score_summary += "+25 Almost!,"
-            elif difference <= 10:
-                points += 20
-                player.score_summary += "+20 Close!,"
+        if pbpm == game.master_bpm:
+            bonus = 50
+            points += bonus
+            player.score_summary += "+%s Bullseye!,"%bonus
+        elif difference <= 5:
+            bonus = 20
+            points += bonus
+            player.score_summary += "+%s Almost!,"%bonus
+        elif difference <= 10:
+            bonus = 10
+            points += bonus
+            player.score_summary += "+%s Close!,"%bonus
         player.score += points
         player.save()
 
-    for player in closest_players:
-        player.score += 10
-        player.score_summary += "+10 Closest in round %s"%game.round
+def during_round(player, game):
+    pbpm = getattr(player, "round_%s_bpm"%game.round)
+    if pbpm == game.master_bpm:
+        bonus = 25
+        player.score += bonus
+        player.score_summary += "+%s Ding!,"%bonus
+        player.save()
+
+def after_round(players, game):
+    players = list(players)
+    def key(player):
+        pbpm = getattr(player, "round_%s_bpm"%game.round)
+        return math.abs(pbpm - game.master_bpm)
+    players.sort(key = key)
+
+    def key(player):
+        pbpm = getattr(player, "round_%s_bpm"%game.round)
+        return pbpm == game.master_bpm
+
+    #players = filter(players, lambda player: player
+    for player in players:
+        bonus = 20
+        player.score += bonus
+        player.score_summary += "+%s Closest not on %s"%(bonus, game.round)
         player.save()

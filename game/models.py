@@ -3,13 +3,18 @@ from django.db import models
 class Game(models.Model):
     password = models.CharField(max_length = 100)
     round = models.IntegerField(default = 0)
-    master_bpm = models.PositiveIntegerField(null = True)
+    round_1_master_bpm = models.PositiveIntegerField(null = True)
+    round_2_master_bpm = models.PositiveIntegerField(null = True)
+    round_3_master_bpm = models.PositiveIntegerField(null = True)
     host = models.ForeignKey("Player", related_name = "hosted")
+    max_bpm = models.PositiveIntegerField(null = True)
+    max_bpm_player = models.ForeignKey("Player", null = True, related_name = "max_player")
+    min_bpm = models.PositiveIntegerField(null = True)
+    min_bpm_player = models.ForeignKey("Player", null = True, related_name = "min_player")
 
 class Player(models.Model):
     name = models.CharField(max_length = 100)
     game = models.ForeignKey(Game, null = True, related_name = "players")
-    round_0_bpm = models.PositiveIntegerField(null = True)
     round_1_bpm = models.PositiveIntegerField(null = True)
     round_2_bpm = models.PositiveIntegerField(null = True)
     round_3_bpm = models.PositiveIntegerField(null = True)
